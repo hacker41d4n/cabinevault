@@ -9,32 +9,59 @@ echo "             CABINEVAULT INSTALLER"
 echo "=================================================="
 echo ""
 
-# Update system
-
-echo "[1/8] Updating package lists..."
+echo "[1/9] Updating package lists..."
 sudo apt update
 
-# Install Docker
-
-echo "[2/8] Installing Docker..."
+echo "[2/9] Installing Docker..."
 
 if ! command -v docker >/dev/null 2>&1; then
-sudo apt install -y docker.io docker-compose
+sudo apt install -y docker.io
+fi
+
+if ! command -v docker-compose >/dev/null 2>&1; then
+sudo apt install -y docker-compose
 fi
 
 sudo systemctl enable docker
 sudo systemctl start docker
 
-# Docker permissions
-
-echo "[3/8] Configuring Docker permissions..."
+echo "[3/9] Configuring Docker permissions..."
 
 sudo groupadd docker 2>/dev/null || true
 sudo usermod -aG docker "$USER"
 
-# Create folders
+echo "[4/9] Freeing port 53 for Pi-hole..."
 
-echo "[4/8] Creating directories..."
+if systemctl is-active --quiet systemd-resolved; then
+
+
+echo "Stopping systemd-resolved..."
+
+sudo systemctl stop systemd-resolved
+sudo systemctl disable systemd-resolved
+
+sudo rm -f /etc/resolv.conf
+
+cat <<EOF | sudo tee /etc/resolv.conf >/dev/null
+
+
+nameserver 1.1.1.1
+nameserver 8.8.8.8
+EOF
+
+fi
+
+echo "[5/9] Verifying port 53..."
+
+if sudo ss -tulpn | grep -q ":53 "; then
+echo ""
+echo "ERROR: Port 53 is still in use."
+echo ""
+sudo ss -tulpn | grep ":53"
+exit 1
+fi
+
+echo "[6/9] Creating directories..."
 
 mkdir -p data/portainer
 mkdir -p data/pihole/etc-pihole
@@ -50,29 +77,41 @@ mkdir -p data/uptime-kuma
 mkdir -p data/downloads
 mkdir -p backups
 
-# Create env
+echo "[7/9] Checking .env..."
 
-echo "[5/8] Checking .env..."
+if [ ! -f .env ]; then
 
-if [ ! -f .env ] && [ -f .env.example ]; then
-cp .env.example .env
+
+cat <<EOF > .env
+
+
+TZ=Africa/Johannesburg
+EOF
+
+
+echo ".env created."
+
+
+else
+
+
+echo ".env already exists."
+
+
 fi
 
-# Start containers
-
-echo "[6/8] Starting CabineVault..."
+echo "[8/9] Pulling containers..."
 
 sudo docker-compose pull
+
+echo "[9/9] Starting CabineVault..."
+
 sudo docker-compose up -d
 
-# Wait for services
-
-echo "[7/8] Waiting for services..."
+echo "Waiting for services..."
 sleep 20
 
-# Create SSH dashboard
-
-echo "[8/8] Creating SSH dashboard..."
+echo "Creating SSH dashboard..."
 
 sudo tee /etc/profile.d/cabinevault.sh >/dev/null <<'EOF'
 #!/bin/bash
@@ -98,9 +137,6 @@ echo "qBittorrent:         http://$IP:8081"
 echo "pyLoad:              http://$IP:8000"
 echo "Guacamole:           http://$IP:8082"
 echo "Uptime Kuma:         http://$IP:3001"
-echo ""
-echo "Running Containers:"
-docker ps --format "table {{.Names}}\t{{.Status}}"
 echo ""
 
 
@@ -138,5 +174,8 @@ echo ""
 fi
 
 echo "=================================================="
-echo "CabineVault installation complete."
+echo "Installation Complete"
 echo "=================================================="
+echo ""
+echo "Reconnect SSH to see the CabineVault dashboard."
+echo ""
