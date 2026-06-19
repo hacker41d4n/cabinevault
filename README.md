@@ -95,7 +95,7 @@ CabineVault combines the most popular homelab services into a single easy-to-dep
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOURUSERNAME/cabinevault.git
+git clone https://github.com/hacker41d4n/cabinevault.git
 cd cabinevault
 ```
 
@@ -267,29 +267,5 @@ cabinevault/
 
 ---
 
-# 🧑‍💻 Contributing
-
-Contributions are welcome.
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Open a Pull Request
-
----
-
-# ⭐ Support
-
-If you enjoy CabineVault, consider starring the repository.
-
-```bash
-⭐ Star the project
-🍴 Fork the repository
-🚀 Share it with other homelab enthusiasts
-```
-
----
-
-## Built with ❤️ by Aidan Gepp
 
 ### CabineVault — Your Homelab. Simplified.
