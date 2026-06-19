@@ -165,7 +165,7 @@ Replace SERVER-IP with your server IP address.
 | n8n                 | http://SERVER-IP:5678       |
 | qBittorrent         | http://SERVER-IP:8081       |
 | pyLoad              | http://SERVER-IP:8000       |
-| Guacamole           | http://SERVER-IP:8082       |
+| Guacamole           | http://SERVER-IP:8082/guacamole       |
 | Uptime Kuma         | http://SERVER-IP:3001       |
 
 ---
