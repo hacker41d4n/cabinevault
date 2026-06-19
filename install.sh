@@ -27,30 +27,24 @@ sudo systemctl start docker
 
 echo "[3/8] Configuring Docker permissions..."
 
-if ! groups "$USER" | grep -q docker; then
 sudo groupadd docker 2>/dev/null || true
 sudo usermod -aG docker "$USER"
-fi
 
 echo "[4/8] Checking DNS conflicts..."
 
-if sudo ss -tulpn | grep -q ":53 "; then
-
-
 if systemctl is-active --quiet systemd-resolved; then
 
-    echo "systemd-resolved detected."
-    echo "Disabling systemd-resolved..."
 
-    sudo systemctl stop systemd-resolved
-    sudo systemctl disable systemd-resolved
+echo "systemd-resolved detected."
 
-    sudo rm -f /etc/resolv.conf
+sudo systemctl stop systemd-resolved
+sudo systemctl disable systemd-resolved
 
-    echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf >/dev/null
+sudo rm -f /etc/resolv.conf
 
-    echo "DNS conflict resolved."
-fi
+echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf >/dev/null
+
+echo "DNS conflict resolved."
 
 
 fi
@@ -88,7 +82,13 @@ echo "[8/8] Starting CabineVault..."
 
 sudo docker-compose up -d
 
+echo ""
+echo "Waiting for services to initialize..."
+sleep 20
+
 SERVER_IP=$(hostname -I | awk '{print $1}')
+
+QBIT_PASSWORD=$(sudo docker logs qbittorrent 2>&1 | grep -i "temporary password" | sed 's/.*temporary password is provided for this session: //')
 
 echo ""
 echo "=================================================="
@@ -107,18 +107,23 @@ echo "pyLoad:               http://$SERVER_IP:8000"
 echo "Guacamole:            http://$SERVER_IP:8082"
 echo "Uptime Kuma:          http://$SERVER_IP:3001"
 echo ""
+
+if [ -n "$QBIT_PASSWORD" ]; then
 echo "=================================================="
-echo "IMPORTANT"
+echo "        qBittorrent Login Details"
 echo "=================================================="
+echo "Username: admin"
+echo "Password: $QBIT_PASSWORD"
 echo ""
-echo "To use Docker WITHOUT sudo in future sessions:"
+fi
+
+echo "=================================================="
+echo "Docker permissions configured."
 echo ""
-echo "    logout"
-echo "    login"
-echo ""
-echo "OR run:"
+echo "To use Docker WITHOUT sudo:"
 echo ""
 echo "    newgrp docker"
 echo ""
-echo "This installer has completed successfully."
+echo "or simply log out and back in later."
 echo ""
+echo "=================================================="
