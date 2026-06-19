@@ -127,3 +127,32 @@ echo ""
 echo "or simply log out and back in later."
 echo ""
 echo "=================================================="
+
+sudo tee /etc/profile.d/cabinevault.sh > /dev/null << 'EOF'
+#!/bin/bash
+
+IP=$(hostname -I | awk '{print $1}')
+
+echo ""
+echo "=================================================="
+echo "                 CABINEVAULT"
+echo "=================================================="
+echo ""
+echo "Portainer:            https://$IP:9443"
+echo "Pi-hole:              http://$IP:8080/admin"
+echo "Nginx Proxy Manager:  http://$IP:81"
+echo "Heimdall:             http://$IP:8083"
+echo "n8n:                  http://$IP:5678"
+echo "qBittorrent:          http://$IP:8081"
+echo "pyLoad:               http://$IP:8000"
+echo "Guacamole:            http://$IP:8082"
+echo "Uptime Kuma:          http://$IP:3001"
+echo ""
+echo "Containers:"
+docker ps --format "table {{.Names}}\t{{.Status}}"
+echo ""
+echo "=================================================="
+echo ""
+EOF
+
+sudo chmod +x /etc/profile.d/cabinevault.sh
