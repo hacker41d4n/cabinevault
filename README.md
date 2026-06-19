@@ -174,6 +174,7 @@ Replace SERVER-IP with your server IP address.
 Create a backup:
 
 ```bash
+chmod +x backup.sh
 ./backup.sh
 ```
 
