@@ -12,46 +12,44 @@ echo ""
 echo "[1/8] Updating package lists..."
 sudo apt update
 
-echo "[2/8] Checking Docker..."
+echo "[2/8] Installing Docker & Docker Compose..."
 
 if ! command -v docker >/dev/null 2>&1; then
-echo "Docker not found. Installing..."
-
-
 sudo apt install -y docker.io
-
-sudo systemctl enable docker
-sudo systemctl start docker
-
-sudo usermod -aG docker "$USER"
-
-echo "Docker installed successfully."
-
-
-else
-echo "Docker already installed."
 fi
 
-echo "[3/8] Ensuring Docker is running..."
+if ! command -v docker-compose >/dev/null 2>&1; then
+sudo apt install -y docker-compose
+fi
 
 sudo systemctl enable docker
 sudo systemctl start docker
 
-echo "[4/8] Checking DNS port conflicts..."
+echo "[3/8] Configuring Docker permissions..."
+
+if ! groups "$USER" | grep -q docker; then
+sudo groupadd docker 2>/dev/null || true
+sudo usermod -aG docker "$USER"
+fi
+
+echo "[4/8] Checking DNS conflicts..."
 
 if sudo ss -tulpn | grep -q ":53 "; then
 
 
 if systemctl is-active --quiet systemd-resolved; then
+
     echo "systemd-resolved detected."
+    echo "Disabling systemd-resolved..."
 
     sudo systemctl stop systemd-resolved
     sudo systemctl disable systemd-resolved
 
     sudo rm -f /etc/resolv.conf
+
     echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf >/dev/null
 
-    echo "systemd-resolved disabled."
+    echo "DNS conflict resolved."
 fi
 
 
@@ -84,11 +82,11 @@ fi
 
 echo "[7/8] Pulling containers..."
 
-sudo docker compose pull
+sudo docker-compose pull
 
 echo "[8/8] Starting CabineVault..."
 
-sudo docker compose up -d
+sudo docker-compose up -d
 
 SERVER_IP=$(hostname -I | awk '{print $1}')
 
@@ -99,15 +97,28 @@ echo "=================================================="
 echo ""
 echo "Server IP: $SERVER_IP"
 echo ""
-echo "Portainer:           https://$SERVER_IP:9443"
-echo "Pi-hole:             http://$SERVER_IP:8080/admin"
-echo "Nginx Proxy Manager: http://$SERVER_IP:81"
-echo "Heimdall:            http://$SERVER_IP:8083"
-echo "n8n:                 http://$SERVER_IP:5678"
-echo "qBittorrent:         http://$SERVER_IP:8081"
-echo "pyLoad:              http://$SERVER_IP:8000"
-echo "Guacamole:           http://$SERVER_IP:8082"
-echo "Uptime Kuma:         http://$SERVER_IP:3001"
+echo "Portainer:            https://$SERVER_IP:9443"
+echo "Pi-hole:              http://$SERVER_IP:8080/admin"
+echo "Nginx Proxy Manager:  http://$SERVER_IP:81"
+echo "Heimdall:             http://$SERVER_IP:8083"
+echo "n8n:                  http://$SERVER_IP:5678"
+echo "qBittorrent:          http://$SERVER_IP:8081"
+echo "pyLoad:               http://$SERVER_IP:8000"
+echo "Guacamole:            http://$SERVER_IP:8082"
+echo "Uptime Kuma:          http://$SERVER_IP:3001"
 echo ""
-echo "CabineVault installation complete."
+echo "=================================================="
+echo "IMPORTANT"
+echo "=================================================="
+echo ""
+echo "To use Docker WITHOUT sudo in future sessions:"
+echo ""
+echo "    logout"
+echo "    login"
+echo ""
+echo "OR run:"
+echo ""
+echo "    newgrp docker"
+echo ""
+echo "This installer has completed successfully."
 echo ""
