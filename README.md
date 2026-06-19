@@ -101,6 +101,8 @@ Make the installer executable:
 
 ```bash
 chmod +x install.sh
+chmod +x backup.sh
+chmod +x restore.sh
 ```
 
 Run the installer:
@@ -173,7 +175,6 @@ Replace SERVER-IP with your server IP address.
 Create a backup:
 
 ```bash
-chmod +x backup.sh
 ./backup.sh
 ```
 
@@ -186,7 +187,6 @@ Backups are stored in:
 Restore a backup:
 
 ```bash
-chmod +x restore.sh
 ./restore.sh backups/backup-file.tar.gz
 ```
 
