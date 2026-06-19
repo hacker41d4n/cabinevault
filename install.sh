@@ -17,7 +17,7 @@ echo "[2/8] Checking Docker..."
 if ! command -v docker >/dev/null 2>&1; then
 echo "Docker not found. Installing..."
 
-```
+
 sudo apt install -y docker.io
 
 sudo systemctl enable docker
@@ -26,7 +26,7 @@ sudo systemctl start docker
 sudo usermod -aG docker "$USER"
 
 echo "Docker installed successfully."
-```
+
 
 else
 echo "Docker already installed."
@@ -41,7 +41,7 @@ echo "[4/8] Checking DNS port conflicts..."
 
 if sudo ss -tulpn | grep -q ":53 "; then
 
-```
+
 if systemctl is-active --quiet systemd-resolved; then
     echo "systemd-resolved detected."
 
@@ -53,7 +53,7 @@ if systemctl is-active --quiet systemd-resolved; then
 
     echo "systemd-resolved disabled."
 fi
-```
+
 
 fi
 
