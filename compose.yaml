@@ -50,13 +50,13 @@ services:
     volumes:
       - ./data/heimdall:/config
 
-    n8n:
-      image: n8nio/n8n:latest
-      container_name: n8n
-      restart: unless-stopped
-      environment:
-        - TZ=Africa/Johannesburg
-        - N8N_SECURE_COOKIE=false
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    environment:
+      - TZ=Africa/Johannesburg
+      - N8N_SECURE_COOKIE=false
     ports:
       - "5678:5678"
     volumes:
@@ -130,3 +130,11 @@ services:
       - "3001:3001"
     volumes:
       - ./data/uptime-kuma:/app/data
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    command: --cleanup --interval 86400
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
