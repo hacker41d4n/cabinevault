@@ -187,7 +187,8 @@ Backups are stored in:
 Restore a backup:
 
 ```bash
-./restore.sh backup-file.tar.gz
+chmod +x restore.sh
+./restore.sh backups/backup-file.tar.gz
 ```
 
 ---
