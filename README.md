@@ -60,7 +60,6 @@ CabineVault combines the most popular homelab services into a single easy-to-dep
 | Guacamole           | Browser-based Remote Access |
 | RustDesk            | Self-Hosted Remote Desktop  |
 | Uptime Kuma         | Monitoring                  |
-| Watchtower          | Automatic Container Updates |
 
 ---
 
