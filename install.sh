@@ -15,7 +15,6 @@ echo "[2/5] Checking Docker..."
 if ! command -v docker >/dev/null 2>&1; then
 echo "Docker not found. Installing..."
 
-```
 sudo apt install -y docker.io docker-compose-v2
 
 sudo systemctl enable docker
@@ -25,7 +24,6 @@ sudo usermod -aG docker $USER
 
 echo ""
 echo "Docker installed successfully."
-```
 
 else
 echo "Docker already installed."
