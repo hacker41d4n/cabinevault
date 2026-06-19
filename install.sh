@@ -2,34 +2,62 @@
 
 set -e
 
+clear
+
 echo "=================================================="
 echo "             CABINEVAULT INSTALLER"
 echo "=================================================="
 echo ""
 
-echo "[1/5] Updating package lists..."
+echo "[1/8] Updating package lists..."
 sudo apt update
 
-echo "[2/5] Checking Docker..."
+echo "[2/8] Checking Docker..."
 
 if ! command -v docker >/dev/null 2>&1; then
 echo "Docker not found. Installing..."
 
-sudo apt install -y docker.io docker-compose-v2
+```
+sudo apt install -y docker.io
 
 sudo systemctl enable docker
 sudo systemctl start docker
 
-sudo usermod -aG docker $USER
+sudo usermod -aG docker "$USER"
 
-echo ""
 echo "Docker installed successfully."
+```
 
 else
 echo "Docker already installed."
 fi
 
-echo "[3/5] Creating folders..."
+echo "[3/8] Ensuring Docker is running..."
+
+sudo systemctl enable docker
+sudo systemctl start docker
+
+echo "[4/8] Checking DNS port conflicts..."
+
+if sudo ss -tulpn | grep -q ":53 "; then
+
+```
+if systemctl is-active --quiet systemd-resolved; then
+    echo "systemd-resolved detected."
+
+    sudo systemctl stop systemd-resolved
+    sudo systemctl disable systemd-resolved
+
+    sudo rm -f /etc/resolv.conf
+    echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf >/dev/null
+
+    echo "systemd-resolved disabled."
+fi
+```
+
+fi
+
+echo "[5/8] Creating folders..."
 
 mkdir -p data/portainer
 mkdir -p data/pihole/etc-pihole
@@ -45,7 +73,7 @@ mkdir -p data/uptime-kuma
 mkdir -p data/downloads
 mkdir -p backups
 
-echo "[4/5] Checking .env..."
+echo "[6/8] Checking environment file..."
 
 if [ ! -f .env ]; then
 cp .env.example .env
@@ -54,10 +82,13 @@ else
 echo ".env already exists."
 fi
 
-echo "[5/5] Starting CabineVault..."
+echo "[7/8] Pulling containers..."
 
-docker compose pull
-docker compose up -d
+sudo docker compose pull
+
+echo "[8/8] Starting CabineVault..."
+
+sudo docker compose up -d
 
 SERVER_IP=$(hostname -I | awk '{print $1}')
 
@@ -78,5 +109,5 @@ echo "pyLoad:              http://$SERVER_IP:8000"
 echo "Guacamole:           http://$SERVER_IP:8082"
 echo "Uptime Kuma:         http://$SERVER_IP:3001"
 echo ""
-echo "Run 'docker ps' to view running containers."
+echo "CabineVault installation complete."
 echo ""
