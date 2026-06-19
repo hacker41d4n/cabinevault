@@ -1,0 +1,142 @@
+name: cabinevault
+
+services:
+
+portainer:
+image: portainer/portainer-ce:latest
+container_name: portainer
+restart: unless-stopped
+ports:
+- "${PORTAINER_PORT}:9443"
+volumes:
+- /var/run/docker.sock:/var/run/docker.sock
+- ${DATA_DIR}/portainer:/data
+
+pihole:
+image: pihole/pihole:latest
+container_name: pihole
+hostname: pihole
+restart: unless-stopped
+environment:
+TZ: ${TZ}
+FTLCONF_webserver_api_password: ${PIHOLE_PASSWORD}
+ports:
+- "53:53/tcp"
+- "53:53/udp"
+- "8080:80"
+volumes:
+- ${DATA_DIR}/pihole/etc-pihole:/etc/pihole
+- ${DATA_DIR}/pihole/etc-dnsmasq.d:/etc/dnsmasq.d
+
+nginx-proxy-manager:
+image: jc21/nginx-proxy-manager:latest
+container_name: nginx-proxy-manager
+restart: unless-stopped
+ports:
+- "${NPM_HTTP}:80"
+- "${NPM_ADMIN}:81"
+- "${NPM_HTTPS}:443"
+volumes:
+- ${DATA_DIR}/npm/data:/data
+- ${DATA_DIR}/npm/letsencrypt:/etc/letsencrypt
+
+heimdall:
+image: lscr.io/linuxserver/heimdall:latest
+container_name: heimdall
+restart: unless-stopped
+environment:
+PUID: ${PUID}
+PGID: ${PGID}
+TZ: ${TZ}
+ports:
+- "${HEIMDALL_PORT}:80"
+volumes:
+- ${DATA_DIR}/heimdall:/config
+
+n8n:
+image: n8nio/n8n:latest
+container_name: n8n
+restart: unless-stopped
+environment:
+TZ: ${TZ}
+ports:
+- "${N8N_PORT}:5678"
+volumes:
+- ${DATA_DIR}/n8n:/home/node/.n8n
+
+qbittorrent:
+image: lscr.io/linuxserver/qbittorrent:latest
+container_name: qbittorrent
+restart: unless-stopped
+environment:
+PUID: ${PUID}
+PGID: ${PGID}
+TZ: ${TZ}
+WEBUI_PORT: ${QBITTORRENT_PORT}
+ports:
+- "${QBITTORRENT_PORT}:${QBITTORRENT_PORT}"
+- "6881:6881"
+- "6881:6881/udp"
+volumes:
+- ${DATA_DIR}/qbittorrent/config:/config
+- ${DATA_DIR}/downloads:/downloads
+
+pyload:
+image: lscr.io/linuxserver/pyload-ng:latest
+container_name: pyload
+restart: unless-stopped
+ports:
+- "${PYLOAD_PORT}:8000"
+volumes:
+- ${DATA_DIR}/pyload:/config
+- ${DATA_DIR}/downloads:/downloads
+
+guacamole:
+image: guacamole/guacamole:latest
+container_name: guacamole
+restart: unless-stopped
+ports:
+- "${GUACAMOLE_PORT}:8080"
+
+rustdesk-hbbs:
+image: rustdesk/rustdesk-server:latest
+container_name: rustdesk-hbbs
+command: hbbs
+restart: unless-stopped
+volumes:
+- ${DATA_DIR}/rustdesk:/data
+ports:
+- "21115:21115"
+- "21116:21116"
+- "21116:21116/udp"
+- "21118:21118"
+
+rustdesk-hbbr:
+image: rustdesk/rustdesk-server:latest
+container_name: rustdesk-hbbr
+command: hbbr
+restart: unless-stopped
+depends_on:
+- rustdesk-hbbs
+volumes:
+- ${DATA_DIR}/rustdesk:/data
+ports:
+- "21117:21117"
+- "21119:21119"
+
+uptime-kuma:
+image: louislam/uptime-kuma:latest
+container_name: uptime-kuma
+restart: unless-stopped
+ports:
+- "3001:3001"
+volumes:
+- ${DATA_DIR}/uptime-kuma:/app/data
+
+watchtower:
+image: containrrr/watchtower:latest
+container_name: watchtower
+restart: unless-stopped
+command: --cleanup --interval 86400
+volumes:
+- /var/run/docker.sock:/var/run/docker.sock
