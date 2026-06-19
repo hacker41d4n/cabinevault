@@ -14,7 +14,6 @@ CabineVault combines the most popular homelab services into a single easy-to-dep
 
 * Portainer
 * Docker Compose Integration
-* Watchtower Automatic Updates
 
 ### 🌐 Network Services
 
