@@ -14,21 +14,25 @@ echo "======================================"
 echo ""
 
 echo "Stopping containers..."
-docker compose stop
+sudo docker-compose stop
 
 echo "Creating backup archive..."
-tar -czf "$BACKUP_FILE" 
-data 
-.env 
-compose.yaml
+
+sudo tar czf "$BACKUP_FILE" data .env compose.yaml
 
 echo "Starting containers..."
-docker compose start
+sudo docker-compose start
 
 echo ""
-echo "Backup completed successfully!"
+echo "======================================"
+echo " BACKUP COMPLETED SUCCESSFULLY"
+echo "======================================"
 echo ""
-echo "Backup file:"
+echo "Backup File:"
 echo "$BACKUP_FILE"
+echo ""
+
+sudo du -sh "$BACKUP_FILE"
+
 echo ""
 echo "======================================"
